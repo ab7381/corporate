@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Course Walkthrough</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+      }
+      h1,
+      h2 {
+        color: #333;
+      }
+      code {
+        background: #f4f4f4;
+        padding: 4px;
+        border-radius: 4px;
+      }
+      .content {
+        border-left: 4px solid #0077cc;
+        padding-left: 10px;
+      }
+      footer {
+        margin-top: 20px;
+        font-size: 0.9em;
+        color: gray;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Ticorporate</h1>
+    <p>Tältä sivulta löytyy tietoa siitä, mitä tein kurssin aikana.</p>
+
+    <div class="content">
+      <h2>Vastuualueet Craftfoliossa</h2>
+      <p>
+        Itselleni projektissa vastuualueiksi tuli business, aws sekä backend.
+        Näitten työjakauma oli karkeasti 80% backendiä 15% aws:ssään, ja loput
+        sitten businessiin.
+      </p>
+
+      <p>
+        Alkuun löimme viisaat päämme ainon kanssa yhteen, ja mietitttiin, että
+        devataan molemmat jonkinnäköinen bäkkäri kasaan, minkä jälkeen valitaan
+        niistä toinen, minkä kehitystä jatketaan prjoketimme varsinaiseksi
+        bäkkäriksi. Tähän emme käyttäneet kovin kauaa aikaa, vaan oikeastaan
+        koska itse sain oman bäkkärini ensimmäisenä (jotenkin) toimivaan
+        kuntoon, niin valitsimme sen ja käytimme sitä pohjana loppuun asti.
+        Näinollen, bäkkärin "mielenkiintoiset" arkkitehtuaaliset ratkaisut
+        johtauvat valitevasti allekkirjoittaneen kädettömyydestä, enkä voi
+        heittää bäkkärikaveriani bussin alle. Monet hommat tuli tehtyä
+        kohtalaisen loogisesti, mutta lopulliseen koodiin jäi myös mahtavia
+        ratkaisuita, jotka pidemmässä kehitystyössä olisi poistettu. Yksi
+        tällaisista ratkaisuista liittyy siihen, miten bäkkäri käynnistyy ja
+        ottaa yhteyden tietokantaan. Mykyinen ratkaisumme jäi valitettavasti
+        tilanteeseen, missä koko homma menee nurin, jos tietokanta ei ole
+        pystyssä ennen kuin varsinainen bäkkäri käynnistyy. Tämä johtaa siihen,
+        että pienelläkin tietokannan toiminnalla häiriöllä on suuri merkitys
+        kokonaisuuden toimintaan. Eli jatkokehtiyksessä olisi toivottavaa, että
+        bäkkäri osaa yrittää uudelleen tietyin väliajoin yhtetyttä tietokantaan
+        nurin menenmisen sijaan.
+      </p>
+
+      <h2>Lätkäsy pilveen</h2>
+      <p>
+        Päätimme käytännössä heti kättelyssä, että bäkkäri tullaan lätkäisemään
+        AWS:ssään, sillä se oli pilvipalvelu, josta kaikilla oli jonkin verran
+        kokemusta etukäteen. Sekä bäkkäri että frontti pyörivät Elastic
+        Beanstalkin päällä, joskin bäkkärin tietokanta oli decouplattu tästä
+        instanssista, jotta se pysyisi päällä esimerkissä päivityksiä tehdessä
+        niin, ettei koko tietokantaa resetoitaisi.(Lisää hienoja
+        suunnitteluvaintoja team bäkkäriltä). Tietokantaan myös tykitettiin
+        alussa tavaraa lokaalilta devauskannalta, jotta pääsimme varmistumaan
+        sen toiminnasta. Aws:ssän suhteen homma pysyi kohtalaisen simppelinä
+        koko tuotannon ajan. Jatkokehitystä silmällä pitäen, julkaisuputken
+        rakentaminen olisi ollut erittäin hyödyllistä, sillä se parantaisi
+        varisinkin testausta huomattavasti, sekä mahdollistaisi sen
+        automatisoinnin ennen varsinaista deployintia.
+      </p>
+
+      <img src="images/temp.jpg" alt="AWS ratkaisun kaavio" width="600" />
+
+      <h2>Bäkkärin rakenteesta ja valinnoista</h2>
+      <p>
+        Bäkkärin toimintaperiaate pidettiin varsin simppelinä. Esimerkkinä tieto
+        tuli frontista bäkkäriin, jossa se otettiin jossa se otettiin kiinni
+        routeissa, josta se ohjaattiin oikeaan controlleriin, joka sitten teki
+        tarvittavat kutsut tietokantaan, sekä kertoi
+        onnistumisesta/epäonnistumisesta eteenpäin. Sovelluksen
+        sisäänkirjatuminen tehtiin käyttäen googlen Oauth2:sta. Tämä aiheutti
+        jonkin verra harmaita hiuksia, sillä tämän käyttö vaati SSL
+        sertifikaattia. Tämä ongelma pystyttiin kiertämään devausvaiheessa
+        hyväskyttävällä tavalla. Sertifkoimme oman (ei luotetun) sertin, ja
+        käytimme sitä. Näin käyttäjän nettiselain varoitti aina self-signatusta
+        sertistä, mutta vältimme oikeasta sertistä maksamisen kurssin aikana,
+        koska tätä varten tarvitsisemme oman URL:osoitteen, eikä beanstalkin
+        automaattisesti antama enää kelpaisi. Kirjautumisen tilaa seurattiin
+        js:ssän session middlewarella. Tämä valittiin pääosin sen
+        yksinkertaisuuden ja helppoläyttöisyyden vuoksi. Karkeasti jaettuna
+        bäkkäri siis jaettiin kolmeen eri osaan. Controllerit, Routet, sekä
+        pää-instanssi. Tämän lisäksi tietokannan alustaminen ja Oauth login
+        setuppi jaettiin omiin kokonaisuuksiina, mutta ne olivat varsin
+        irrallaan ympärillä olevasta kokonaisuudesta.
+      </p>
+
+      <h2>Business</h2>
+      <p>
+        Projektimme business puoli jäi verrattaen kevyelle tollalle. Tein
+        suunnitelmat AWS:ssän kustannuksista, sekä siitä, kuinka plajon
+        devaajien palkkaaminen maksaisi, mutta sen jälkeen homma jäi pitkälle
+        tauolle keskittyessäni bäkkäriin sekä AWS:ssään. Loppupuolella projektia
+        julkaisimme IG käyttäjän, jolla voitiin julkaista promoa projektiin
+        liittyen. Tämän lisäksi selvitimme erilaisia mahdollisuuksia, joilla
+        saisimme sovelluksen kohdeyleisöän tietoon. Tällaisiksi todettiin
+        esimerkiksi erilaiset käsityömessut, ja tapahtumat. Nämä olisivat
+        erityisen tärkeitä asioita meille, sillä sovelluksen potenttiaalista
+        käyttäjäpohjaa voisi olla muuten hyvin vaikea tavoittaa verrattuna
+        moniin muihin projekteihin.
+      </p>
+    </div>
+
+    <footer>
+      <p>
+        Created by Sami Puttonen -
+        <a href="https://github.com/ab7381">GitHub Profile</a>
+      </p>
+    </footer>
+  </body>
+</html>
